@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Through the Prism</title>
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+    padding: 0;
+    transition: background 0.5s, color 0.5s;
+    scroll-behavior: smooth;
+  }
+  header {
+    background: linear-gradient(to right, #4a90e2, #50e3c2);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    transition: background 0.3s ease;
+  }
+  header:hover {
+    background: linear-gradient(to right, #50e3c2, #4a90e2);
+  }
+  .container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    transition: box-shadow 0.3s;
+  }
+  .section {
+    margin: 2rem 0;
+    padding: 1rem;
+    border-radius: 12px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .section:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .spectrum {
+    height: 40px;
+    background: linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red);
+    cursor: crosshair;
+    border-radius: 8px;
+    animation: pulse 1.5s infinite alternate ease-in-out;
+  }
+  @keyframes pulse {
+    from { box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+    to { box-shadow: 0 0 20px rgba(0,0,0,0.2); }
+  }
+  #colorInfo {
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  nav a {
+    margin: 0 1rem;
+    color: #4a90e2;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+  nav a:hover {
+    color: #50e3c2;
+  }
+  .palette {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+  .swatch {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    transition: transform 0.2s ease;
+  }
+  .swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  }
+  .dark-mode {
+    background: #1a1a1a;
+    color: #f0f0f0;
+  }
+  .dark-mode .container {
+    background: #2a2a2a;
+  }
+  .dark-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    background: #444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .dark-toggle:hover {
+    background: #666;
+  }
+</style>
+</head>
+<body>
+  <button class="dark-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+  <header>
+    <h1>Through the Prism</h1>
+    <p>Simulating Spectral Analysis</p>
+    <nav>
+      <a href="#try">Try It Yourself</a>
+      <a href="#see">What Did We See?</a>
+      <a href="#why">Why This Matters</a>
+      <a href="#analyzer">Color Analyzer</a>
+      <a href="#quiz">Quiz</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <section id="try" class="section">
+      <h2>Try It Yourself</h2>
+      <p>Imagine you're pointing your spectrometer at a light source. Click on the spectrum below to select a cross-section:</p>
+      <div class="spectrum" onclick="analyzeSpectrum(event)"></div>
+      <div id="colorInfo"></div>
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-top:1rem;">
+        <iframe src="https://www.youtube.com/embed/SO7ZlMJv5ZM" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen 
+        style="position:absolute;top:0;left:0;width:100%;height:100%;">
+</iframe>
+</div>
+
+    <section id="quiz" class="section">
+  <h2>Guess the Element Quiz</h2>
+  <p>Can you identify the element based on its dominant color or spectral clue?</p>
+  <div id="quizBox" style="margin-top: 1rem;"></div>
+  <button onclick="nextQuestion()">Next Question</button>
+</section>
+
+<script>
+  const quizQuestions = [
+    {
+      question: "This element emits a strong yellow spectral line and is commonly found in street lamps.",
+      options: ["Sodium (Na)", "Copper (Cu)", "Potassium (K)", "Hydrogen (H)"],
+      answer: "Sodium (Na)"
+    },
+    {
+      question: "Which element produces a red emission line, seen in many nebulae?",
+      options: ["Hydrogen (H)", "Oxygen (O)", "Calcium (Ca)", "Iron (Fe)"],
+      answer: "Hydrogen (H)"
+    },
+    {
+      question: "This element has a violet emission and is used in fireworks.",
+      options: ["Potassium (K)", "Sodium (Na)", "Chlorine (Cl)", "Neon (Ne)"],
+      answer: "Potassium (K)"
+    }
+  ];
+
+  let currentIndex = 0;
+
+  function nextQuestion() {
+    if (currentIndex >= quizQuestions.length) {
+      document.getElementById("quizBox").innerHTML = "<p>You've completed the quiz!</p>";
+      return;
+    }
+    const q = quizQuestions[currentIndex];
+    const html = `
+      <p><strong>${q.question}</strong></p>
+      ${q.options.map(option => `<button onclick=\"checkAnswer('${option}')\">${option}</button>`).join('<br>')}
+    `;
+    document.getElementById("quizBox").innerHTML = html;
+  }
+
+  function checkAnswer(choice) {
+    const correct = quizQuestions[currentIndex].answer;
+    const feedback = choice === correct ? "✅ Correct!" : `❌ Incorrect. Correct answer: ${correct}`;
+    document.getElementById("quizBox").innerHTML += `<p>${feedback}</p>`;
+    currentIndex++;
+  }
+
+  window.addEventListener('DOMContentLoaded', nextQuestion);
+</script>
+
+
+    <section id="see" class="section">
+  <h2>What Did We See?</h2>
+  <p>Each light source emits a unique combination of wavelengths — like color fingerprints. Here's an example of real emission spectra:</p>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Emission_spectrum-H.svg/800px-Emission_spectrum-H.svg.png" alt="Hydrogen Spectrum" style="max-width:100%; border-radius:8px; margin-top: 1rem;" />
+</section>
+
+<section id="why" class="section">
+  <h2>Why This Matters 🔍</h2>
+  <p>We often overlook how powerful color can be. Here's how spectroscopy affects the world around us:</p>
+  <ul style="list-style: none; padding: 0;">
+    <li>🖼️ <strong>Art Authentication:</strong> Reveal invisible pigments and verify a painting's origin without touching it.</li>
+    <li>🚀 <strong>Mars Exploration:</strong> NASA’s Perseverance rover uses spectroscopy to study the mineral makeup of Martian rocks.</li>
+    <li>🧬 <strong>Medical Diagnostics:</strong> Differentiate healthy vs. cancerous tissue based on their spectral signatures.</li>
+    <li>🌍 <strong>Environmental Monitoring:</strong> Identify air and water pollutants using their absorption patterns.</li>
+    <li>🥗 <strong>Food Quality:</strong> Determine ripeness and detect contamination using spectral sensors.</li>
+    <li>🕵️‍♂️ <strong>Forensics:</strong> Detect trace evidence invisible to the naked eye at crime scenes.</li>
+  </ul>
+
+  <div style="margin-top:2rem; padding:1rem; border-left:4px solid #50e3c2; background:#e6f9f5; border-radius:8px;">
+    <h3>Spectral Myths Debunked 💡</h3>
+    <p><strong>Myth:</strong> "Black objects don't reflect any light."</p>
+    <p><strong>Truth:</strong> They reflect less, but spectrometers can still detect trace signals.</p>
+  </div>
+</section>
+
+<section id="timeline" class="section">
+  <h2>A Brief Timeline of Spectroscopy ⏳</h2>
+  <ul>
+    <li><strong>1666:</strong> Isaac Newton uses a prism to split sunlight — discovers the visible spectrum.</li>
+    <li><strong>1802:</strong> William Hyde Wollaston observes dark lines in the solar spectrum.</li>
+    <li><strong>1859:</strong> Kirchhoff and Bunsen formalize spectral analysis of elements.</li>
+    <li><strong>1950s:</strong> Spectrometers revolutionize chemistry and medicine.</li>
+    <li><strong>Today:</strong> Used in space missions, climate science, and — our project!</li>
+  </ul>
+</section>
+
+    <section id="analyzer" class="section">
+      <h2>Upload or Capture to Analyze</h2>
+      <input type="file" id="imageInput" accept="image/*"><br><br>
+      <img id="uploadedImage" crossorigin="anonymous" style="max-width:100%; display:none; border-radius:8px;" />
+      <video id="camera" autoplay style="display:none;"></video>
+      <button onclick="startCamera()">Use Webcam</button>
+      <canvas id="canvas" style="display:none;"></canvas>
+      <div class="palette" id="colorPalette"></div>
+      <div id="elementMatch" style="margin-top: 1rem; font-weight: bold;"></div>
+    </section>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    const spectrum = document.querySelector('.spectrum');
+    const colorInfo = document.getElementById('colorInfo');
+
+    function analyzeSpectrum(event) {
+      const x = event.offsetX;
+      const width = spectrum.offsetWidth;
+      const percent = x / width;
+      const wavelength = Math.round(400 + percent * 300);
+      let color = "";
+      if (wavelength < 450) color = "Violet";
+      else if (wavelength < 495) color = "Blue";
+      else if (wavelength < 570) color = "Green";
+      else if (wavelength < 590) color = "Yellow";
+      else if (wavelength < 620) color = "Orange";
+      else color = "Red";
+      colorInfo.innerText = `You clicked at ~${wavelength} nm — Dominant color: ${color}`;
+    }
+
+    const imageInput = document.getElementById('imageInput');
+    const uploadedImage = document.getElementById('uploadedImage');
+    const colorPaletteDiv = document.getElementById('colorPalette');
+    const elementMatchDiv = document.getElementById('elementMatch');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext("2d");
+    const colorThief = new ColorThief();
+
+    function matchElement([r, g, b]) {
+      const [h] = rgbToHsl(r, g, b);
+      if (h >= 0 && h <= 20) return 'Hydrogen (H) – Red Emission Lines';
+      if (h > 20 && h <= 50) return 'Sodium (Na) – Yellow Spectra';
+      if (h > 50 && h <= 150) return 'Chlorophyll (Organic Material)';
+      if (h > 150 && h <= 260) return 'Copper (Cu) – Blue-Green Flame';
+      if (h > 260 && h <= 310) return 'Potassium (K) – Violet Emission';
+      return 'Unknown or Mixed Composition';
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max === min) h = s = 0;
+      else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+      }
+      return [h, s, l];
+    }
+
+    function displayPalette(palette) {
+      colorPaletteDiv.innerHTML = '';
+      elementMatchDiv.innerHTML = '';
+      palette.forEach((color, i) => {
+        const swatch = document.createElement('div');
+        swatch.className = 'swatch';
+        swatch.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+        colorPaletteDiv.appendChild(swatch);
+        const match = matchElement(color);
+        const result = document.createElement('p');
+        result.innerText = `Color ${i + 1}: ${match}`;
+        elementMatchDiv.appendChild(result);
+      });
+    }
+
+    imageInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        uploadedImage.src = e.target.result;
+        uploadedImage.style.display = 'block';
+        uploadedImage.onload = () => {
+          const palette = colorThief.getPalette(uploadedImage, 5);
+          displayPalette(palette);
+        };
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function startCamera() {
+      const video = document.getElementById('camera');
+      video.style.display = 'block';
+      navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+        video.srcObject = stream;
+        video.addEventListener('loadeddata', () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0);
+          const dataURL = canvas.toDataURL();
+          uploadedImage.src = dataURL;
+          uploadedImage.style.display = 'block';
+          uploadedImage.onload = () => {
+            const palette = colorThief.getPalette(uploadedImage, 5);
+            displayPalette(palette);
+          };
+        });
+      }).catch(err => alert('Camera access denied'));
+    }
+  </script>
+</body>
+</html>
